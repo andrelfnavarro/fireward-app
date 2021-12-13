@@ -33,7 +33,7 @@ interface AuthContextData {
 
 const AuthContext = createContext({} as AuthContextData);
 
-const userStorageKey = '@gofinances:user';
+const userStorageKey = '@fireward:user';
 
 const AuthProvider = ({ children }: ProviderProps) => {
   const [user, setUser] = useState<User>({} as User);

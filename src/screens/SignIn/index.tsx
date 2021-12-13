@@ -55,7 +55,7 @@ export function SignIn() {
           <LogoSvg height={RFValue(68)} width={RFValue(120)} />
 
           <Title>
-            Controle suas {'\n'} finanças de forma {'\n'} muito simples
+            Controle seu {'\n'} domicílio de forma {'\n'} muito simples
           </Title>
 
           <SignInTitle>

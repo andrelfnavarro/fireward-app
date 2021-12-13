@@ -1,4 +1,4 @@
-package com.gofinances;
+package com.fireward;
 
 import android.os.Bundle;
 

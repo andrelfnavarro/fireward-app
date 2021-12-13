@@ -33,12 +33,12 @@ export function HighlightCard({
       <Header>
         <Title type={type}>{title}</Title>
 
-        <Icon name={icon[type]} type={type} />
+        <Icon name={'thermometer'} type={type} />
       </Header>
 
       <Content>
         <Amount type={type}>{amount}</Amount>
-        <LastTransaction type={type}>{lastTransaction}</LastTransaction>
+        {/* <LastTransaction type={type}>{lastTransaction}</LastTransaction> */}
       </Content>
     </Container>
   );

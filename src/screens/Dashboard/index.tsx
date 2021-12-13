@@ -1,19 +1,13 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
-import React, { useCallback } from 'react';
-import { useRef } from 'react';
+import React from 'react';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { BorderlessButton } from 'react-native-gesture-handler';
 import { useTheme } from 'styled-components';
-import { FormTransactionTypes } from '../../components/Form/TransactionTypeButton';
+import { VictoryChart, VictoryLine } from 'victory-native';
 
 import { HighlightCard } from '../../components/HighlightCard';
-import {
-  TransactionCard,
-  TransactionCardProps,
-} from '../../components/TransactionCard';
+import { TransactionCardProps } from '../../components/TransactionCard';
 import { useAuth } from '../../hooks/auth';
 import {
   Container,
@@ -27,8 +21,6 @@ import {
   LogoutIcon,
   HightlightCardList,
   Transactions,
-  TransactionsTitle,
-  TransactionsList,
   LoaderContainer,
 } from './styles';
 
@@ -36,157 +28,67 @@ export interface TransactionsListDataProps extends TransactionCardProps {
   id: string;
 }
 
-interface Highlight {
-  amount: string;
-  lastTransaction: string;
-}
-
-interface HighlightsDataProps {
-  entries: Highlight;
-  expenses: Highlight;
-  total: Highlight;
-}
-
 export function Dashboard() {
-  const [transactions, setTransactions] = useState<TransactionsListDataProps[]>(
-    []
-  );
-  const [highlightsData, setHighlightsData] = useState<HighlightsDataProps>(
-    {} as HighlightsDataProps
-  );
+  const initialState = [
+    { y: 24 + (40 - 24) * Math.random(), x: 1 },
+    { y: 24 + (40 - 24) * Math.random(), x: 2 },
+    { y: 24 + (40 - 24) * Math.random(), x: 3 },
+    { y: 24 + (40 - 24) * Math.random(), x: 4 },
+    { y: 24 + (40 - 24) * Math.random(), x: 5 },
+  ];
   const [loading, setLoading] = useState(true);
+  const [lastTemperature, setLastTemperature] = useState(
+    initialState[initialState.length - 1].y
+  );
+  const [data, setData] = useState(initialState);
 
   const theme = useTheme();
-  const componentJustMounted = useRef(true);
 
   const { user, signOut } = useAuth();
 
-  const getLastTransactionDate = (
-    collection: TransactionsListDataProps[],
-    type: FormTransactionTypes
-  ) => {
-    const filteredCollection = collection.filter(
-      transaction => transaction.type === type
-    );
-
-    if (filteredCollection.length === 0) {
-      return 0;
-    }
-
-    const lastTransactionDate = new Date(
-      Math.max.apply(
-        Math,
-        filteredCollection.map(transaction =>
-          new Date(transaction.date).getTime()
-        )
-      )
-    );
-
-    return `${lastTransactionDate.toLocaleDateString('pt-BR', {
-      month: 'long',
-      day: '2-digit',
-    })} `;
-  };
-
-  const loadStoredTransactions = async () => {
-    const dataKey = `@gofinances:transactions_user:${user.id}`;
-    const storedInfo = await AsyncStorage.getItem(dataKey);
-
-    const transactions = storedInfo ? JSON.parse(storedInfo) : [];
-
-    let entriesAmount = 0;
-    let expensesAmount = 0;
-
-    const transactionsFormatted: TransactionsListDataProps[] = transactions.map(
-      (item: TransactionsListDataProps) => {
-        if (item.type === 'positive') {
-          entriesAmount += +item.amount;
-        } else if (item.type === 'negative') {
-          expensesAmount += +item.amount;
-        }
-
-        const amount = Number(item.amount).toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL',
-        });
-
-        const date = Intl.DateTimeFormat('pt-BR', {
-          day: '2-digit',
-          month: '2-digit',
-          year: '2-digit',
-        }).format(new Date(item.date));
-
-        return {
-          ...item,
-          amount,
-          date,
-        };
-      }
-    );
-
-    setTransactions(transactionsFormatted);
-
-    const lastEntriesTransaction = getLastTransactionDate(
-      transactions,
-      'positive'
-    );
-    const lastExpensesTransaction = getLastTransactionDate(
-      transactions,
-      'negative'
-    );
-    const totalInterval =
-      lastExpensesTransaction === 0
-        ? 'Não há transações'
-        : `01 a ${lastExpensesTransaction}`;
-
-    const total = entriesAmount - expensesAmount;
-
-    setHighlightsData({
-      entries: {
-        amount: entriesAmount.toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL',
-        }),
-        lastTransaction:
-          lastEntriesTransaction === 0
-            ? 'Não há transações'
-            : `Última entrada dia ${lastEntriesTransaction}`,
-      },
-      expenses: {
-        amount: expensesAmount.toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL',
-        }),
-        lastTransaction:
-          lastExpensesTransaction === 0
-            ? 'Não há transações'
-            : `Última saída dia ${lastExpensesTransaction}`,
-      },
-      total: {
-        amount: total.toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL',
-        }),
-        lastTransaction: totalInterval,
-      },
-    });
-
+  const loadTemperatureData = async () => {
     setLoading(false);
   };
 
+  const getLastTemperatureType = (temp: number) => {
+    return temp > 40 ? 'total' : temp < 35 ? 'up' : 'down';
+  };
+
   useEffect(() => {
-    loadStoredTransactions();
+    loadTemperatureData();
+
+    setInterval(
+      () => {
+        const newTemp = 24 + (40 - 24) * Math.random();
+        if (data.length <= 10) {
+          setData(state => [
+            ...state,
+            {
+              y: newTemp,
+              x: state[state.length - 1].x + 1,
+            },
+          ]);
+        } else {
+          setData(state => {
+            const nowArray = state;
+            nowArray.shift();
+
+            return [
+              ...nowArray,
+              {
+                y: newTemp,
+                x: state[state.length - 1].x + 1,
+              },
+            ];
+          });
+        }
+
+        setLastTemperature(newTemp);
+      },
+
+      15000
+    );
   }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      if (!componentJustMounted.current) {
-        loadStoredTransactions();
-      }
-
-      componentJustMounted.current = false;
-    }, [])
-  );
 
   return (
     <Container>
@@ -219,33 +121,20 @@ export function Dashboard() {
 
           <HightlightCardList>
             <HighlightCard
-              type="up"
-              title="Entradas"
-              amount={highlightsData.entries.amount}
-              lastTransaction={highlightsData.entries.lastTransaction}
-            />
-            <HighlightCard
-              type="down"
-              title="Saídas"
-              amount={highlightsData.expenses.amount}
-              lastTransaction={highlightsData.expenses.lastTransaction}
-            />
-            <HighlightCard
-              type="total"
-              title="Total"
-              amount={highlightsData.total.amount}
-              lastTransaction={highlightsData.total.lastTransaction}
+              type={getLastTemperatureType(lastTemperature)}
+              title="Temperatura"
+              amount={`${lastTemperature.toPrecision(4)}°C`}
+              lastTransaction={'oi'}
             />
           </HightlightCardList>
 
           <Transactions>
-            <TransactionsTitle>Listagem</TransactionsTitle>
-
-            <TransactionsList
-              data={transactions}
-              keyExtractor={item => item.id}
-              renderItem={({ item }) => <TransactionCard data={item} />}
-            />
+            <VictoryChart domainPadding={{ x: 20 }} animate={{ duration: 500 }}>
+              <VictoryLine
+                style={{ data: { stroke: '#FF872C', strokeWidth: 2 } }}
+                data={data}
+              />
+            </VictoryChart>
           </Transactions>
         </>
       )}

@@ -81,6 +81,9 @@ export const Transactions = styled.View`
   flex: 1;
   padding: 0 24px;
   margin-top: ${RFPercentage(12)}px;
+
+  justify-content: center;
+  align-items: center;
 `;
 
 export const TransactionsTitle = styled.Text`
