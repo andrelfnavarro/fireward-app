@@ -3,8 +3,9 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { BorderlessButton } from 'react-native-gesture-handler';
+import { RFValue } from 'react-native-responsive-fontsize';
 import { useTheme } from 'styled-components';
-import { VictoryChart, VictoryLine } from 'victory-native';
+import { VictoryChart, VictoryLabel, VictoryLine } from 'victory-native';
 
 import { HighlightCard } from '../../components/HighlightCard';
 import { TransactionCardProps } from '../../components/TransactionCard';
@@ -22,6 +23,8 @@ import {
   HightlightCardList,
   Transactions,
   LoaderContainer,
+  TransactionsTitle,
+  TitleWrapper,
 } from './styles';
 
 export interface TransactionsListDataProps extends TransactionCardProps {
@@ -129,10 +132,23 @@ export function Dashboard() {
           </HightlightCardList>
 
           <Transactions>
-            <VictoryChart domainPadding={{ x: 20 }} animate={{ duration: 500 }}>
+            <TitleWrapper>
+              <TransactionsTitle>Temperatura x tempo</TransactionsTitle>
+            </TitleWrapper>
+            <VictoryChart domainPadding={{ x: 5 }} animate={{ duration: 1000 }}>
               <VictoryLine
                 style={{ data: { stroke: '#FF872C', strokeWidth: 2 } }}
                 data={data}
+                // labels={({ datum }) => datum.y.toPrecision(4)}
+                // labelComponent={
+                //   <VictoryLabel
+                //     dy={-10}
+                //     style={{
+                //       fontSize: RFValue(10),
+                //       fontFamily: theme.fonts.bold,
+                //     }}
+                //   />
+                // }
               />
             </VictoryChart>
           </Transactions>

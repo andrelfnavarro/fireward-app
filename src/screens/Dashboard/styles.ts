@@ -4,6 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import {
   getBottomSpace,
   getStatusBarHeight,
+  isIphoneX,
 } from 'react-native-iphone-x-helper';
 import { FlatList } from 'react-native';
 
@@ -28,7 +29,7 @@ export const UserWrapper = styled.View`
   width: 100%;
 
   padding: 0 24px;
-  margin-top: ${getStatusBarHeight() + RFValue(28)}px;
+  margin-top: ${isIphoneX() ? getStatusBarHeight() : 0 + RFValue(28)}px;
 
   flex-direction: row;
   align-items: center;
@@ -80,7 +81,7 @@ export const HightlightCardList = styled.ScrollView.attrs({
 export const Transactions = styled.View`
   flex: 1;
   padding: 0 24px;
-  margin-top: ${RFPercentage(12)}px;
+  margin-top: ${RFPercentage(10)}px;
 
   justify-content: center;
   align-items: center;
@@ -90,8 +91,6 @@ export const TransactionsTitle = styled.Text`
   font-size: ${RFValue(18)}px;
   font-family: ${({ theme }) => theme.fonts.regular};
   color: ${({ theme }) => theme.colors.title};
-
-  margin-bottom: 16px;
 `;
 
 export const TransactionsList = styled(
@@ -105,4 +104,9 @@ export const LoaderContainer = styled.View`
   flex: 1;
   justify-content: center;
   align-items: center;
+`;
+
+export const TitleWrapper = styled.View`
+  width: 100%;
+  align-items: flex-start;
 `;
